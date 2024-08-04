@@ -1,0 +1,48 @@
+version: '3.5'
+services:
+  contact-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    container_name: contact-api
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "80:80"
+    privileged: true
+    command: >
+      sh -c "apache2-foreground"
+
+  db:
+    image: mariadb
+    container_name: contact_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=
+
+  redis-webui:
+    container_name: redis-ui
+    image: erikdubbelboer/phpredisadmin
+    ports:
+      - 8379:80
+    privileged: true
+    environment:
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin
+      - REDIS_1_HOST=redis
+      - REDIS_1_PORT=6379
+      - REDIS_1_AUTH=
+    depends_on:
+      - redis
+
